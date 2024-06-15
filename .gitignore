@@ -1,0 +1,4 @@
+# Ignorar dependencias de node.js
+node_modules/
+
+pnpm-lock.yaml
