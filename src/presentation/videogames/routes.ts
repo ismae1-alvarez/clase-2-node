@@ -9,6 +9,10 @@ export class VideogamesRoutes{
 
         router.get('/',controlleer.getVideogames)
         router.post('/', controlleer.crateVidegames)
+        router.get('/:id', controlleer.getVideogamesById)
+        router.patch('/:id', controlleer.updateVideogamesById)
+        router.delete('/:id', controlleer.deleteVideogamesById)
+
         
         return router
     }
