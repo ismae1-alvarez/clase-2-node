@@ -8,12 +8,25 @@ export class VideogamesController{
 
     crateVidegames =(req :Request, res:Response)=>{
         const {name, price, description} = req.body;
-        this.videogameServices.createVidegame('hola')
-        return res.status(201).json({name,price, description})
+        this.videogameServices.createVidegame({name, price, description})
+            .then(videogame =>{
+                return res.status(201).json(videogame)
+            })
+            .catch((err:any)=>{
+                return res.status(500).json(err)
+            })
+
+        // return res.status(201).json({name,price, description})
     }
 
-    getVideogames = (req:Request, res:Response) =>{
-        return res.status(200).json({messages: "Se pide bien"})
+    getVideogames = (_:Request, res:Response) =>{
+        this.videogameServices.finAllVideogame()
+        .then(videogame=>{
+            return  res.status(200).json(videogame)
+        })
+        .catch((erro:any)=>{
+            console.log(erro)
+        })
     }
 
     getVideogamesById = (req:Request, res:Response) =>{

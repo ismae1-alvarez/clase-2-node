@@ -7,9 +7,9 @@ export class VideogamesRoutes{
     static get routes():Router{
         const router =  Router();
 
-        const videoggameServices =  new VideogameServices
+        const videogameServices =  new VideogameServices
 
-        const controlleer = new VideogamesController(videoggameServices)
+        const controlleer = new VideogamesController(videogameServices)
 
         router.get('/',controlleer.getVideogames)
         router.post('/', controlleer.crateVidegames)
