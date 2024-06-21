@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import { VideogameServices } from "../services/videogame.services";
-import { json } from "stream/consumers";
+import { CustomError } from "../../domain";
+
 
 export class VideogamesController{
     constructor(
@@ -14,10 +15,12 @@ export class VideogamesController{
                 return res.status(201).json(videogame)
             })
             .catch((err:any)=>{
-                return res.status(500).json(err)
-            })
+                if(err instanceof CustomError){
+                    return res.status(err.status).json({message : err.message})
+                }
 
-        // return res.status(201).json({name,price, description})
+                return res.status(500).json({message : "Something went very wrong!"})
+            })
     }
 
     getVideogames = (_:Request, res:Response) =>{
@@ -45,9 +48,7 @@ export class VideogamesController{
                 console.log(err)
                 return res.status(500).json(err)
             })
-        // return res.status(200).json({
-        //     messages : `videojuesgo con el ${id}`
-        // })
+   
     }
 
     updateVideogamesById = (req:Request, res:Response) =>{
@@ -66,14 +67,22 @@ export class VideogamesController{
                 console.log(err)
                 return res.status(500).json(err)
             })
-
-        // return res.status(200).json({
-        //     messages : `videojuesgo con el ${id} actulizo`
-        // })
     }
 
     deleteVideogamesById = (req:Request, res:Response) =>{
         const {id} =  req.params
-        return res.status(204).json()
+
+        if(isNaN(+id)){
+            return res.status(400).json({message : "El id debe de ser un numeror"})
+        }
+
+        this.videogameServices.deleteVideogame(+id) 
+            .then(()=>{
+                return res.status(204).json()
+            })
+            .catch((err:any)=>{
+                return res.status(500).json(err)
+            })
+     
     }
 }

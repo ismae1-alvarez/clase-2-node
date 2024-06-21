@@ -1,4 +1,5 @@
 import { Videogame } from "../../data"
+import { CustomError } from "../../domain";
 
 enum Status {
     ACTIVE = 'ACTIVE',
@@ -7,22 +8,21 @@ enum Status {
 
 
 export class VideogameServices{
+
     constructor (){}
+
+
     async createVidegame(videogamData:any){
-        // console.log(videogamData)
+
+        const videogame =  new Videogame();
+        videogame.title =  videogamData.name.toLowerCase().trim();
+        videogame.description= videogamData.description.toLowerCase().trim();
+        videogame.price = videogamData.price;
         
         try {
-            const videogame =  new Videogame();
-            videogame.title =  videogamData.name.toLowerCase().trim();
-            videogame.description= videogamData.description.toLowerCase().trim();
-            videogame.price = videogamData.price;
-
-            await videogame.save()
-
-            return videogame;
-
+            return await videogame.save()
         } catch (error:any) {
-            console.log(error); // Manejar errores
+             throw CustomError.internalServerError("Something went very wrong!") // Manejar errores
         }
 
 
@@ -30,35 +30,31 @@ export class VideogameServices{
 
     async finAllVideogame(){
         try {
-            const videogame =  await  Videogame.find({
+            return await  Videogame.find({
                 where :{
                     status: Status.ACTIVE
                 }
             })
-            if(!videogame){
-                throw new Error("El videojeugo no existe ")
-            }
-
         } catch (error) {
-            throw new Error("Error")
-            console.log(error)
+            throw CustomError.internalServerError("Something went very wrong!")
         }
 
         
     }
 
     async finAllVideogameById(id:number){
-        try {
-            return await  Videogame.findOne({
-                where : {
-                    id: id, 
-                    status : Status.ACTIVE
-                }
-            })
-        } catch (error:any) {
-            throw new Error("fdssfs")
-            console.log(error)
+
+        const videogame =  await  Videogame.findOne({
+            where : {
+                id: id, 
+                status : Status.ACTIVE
+            }
+        })
+        
+        if(!Videogame){
+            throw CustomError.notFound(`Video game with id : ${id} not found`)
         }
+        return videogame
     }
 
     async updateVideogame(videogamData:any, id:number){
@@ -69,10 +65,26 @@ export class VideogameServices{
         videogame!.price = videogamData.price;
 
         try {
-            await videogame?.save()
-            return videogame
+            return await videogame?.save()
+            // return videogame
         } catch (error) {
-            console.log(error)
+            throw CustomError.internalServerError("Something went very wrong!")
+        }
+    }
+
+    
+
+    async deleteVideogame(id:number){
+        const videogame =  await this.finAllVideogameById(id);
+
+        videogame!.status = Status.INACTIVE
+
+        try {
+            await videogame?.save();
+            return;
+
+        } catch (error:any) {
+            throw CustomError.internalServerError("Something went very wrong!")
         }
     }
 }
